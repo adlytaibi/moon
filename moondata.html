@@ -1,0 +1,96 @@
+<script>
+function crescent(lday) {
+  pct = 0;
+  fill = 'white';
+  width = 1;
+  xrect = 0;
+  ldayc = 1 - Math.abs(Math.cos((lday*90/7)*(Math.PI/180)));
+  if (lday<=14) {
+    xrect = .5;
+  } else if (lday>14) {
+    width = .5;
+  }
+  if (lday<=7) {
+      pct = -.07142857 * ldayc * lday + .5;
+      fill = 'DarkSlateGray';
+  } else if (lday>7 && lday<=14) {
+      pct = .07142857 * ((lday - 14) * ldayc + 14) - .5;
+      fill = 'white';
+  } else if (lday>14 && lday<=21) {
+      pct = -.07142857 * ((lday - 14) * ldayc + 14) + 1.5;
+      fill = 'white';
+  } else if (lday>21) {
+      pct = .07142857 * ((lday - 28) * ldayc + 28) - 1.5;
+      fill = 'DarkSlateGray';
+  }
+  var svg1 = "http://www.w3.org/2000/svg";  
+  var myRect = document.createElementNS(svg1,"rect");
+  myRect.setAttributeNS(null,"x",xrect);
+  myRect.setAttributeNS(null,"width",width);
+  myRect.setAttributeNS(null,"height",1);
+  myRect.setAttributeNS(null,"fill","white");
+  document.getElementById("masking").appendChild(myRect);
+  var svg2 = "http://www.w3.org/2000/svg";  
+  var myEll = document.createElementNS(svg2,"ellipse");
+  myEll.setAttributeNS(null,"cx",.5);
+  myEll.setAttributeNS(null,"cy",.5);
+  myEll.setAttributeNS(null,"rx",pct);
+  myEll.setAttributeNS(null,"ry",.5);
+  myEll.setAttributeNS(null,"fill",fill);
+  document.getElementById("masking").appendChild(myEll);
+  if (geoLat<0) {
+    document.getElementById("moonimg").style.transform = "rotate(180deg)"; 
+  }
+}
+
+this.storageManager = new LocalStorageManager;
+var latlon = this.storageManager.getLatLon() || "0,0";
+ll = latlon.split(",");
+var geoLat = ll[0];
+var geoLon = ll[1];
+
+moon = new CMoonPhase(geoLat, geoLon);
+crescent(moon.get('age'));
+var t = document.getElementById('table');
+t.rows[0].cells[1].innerHTML = moon.get('age').toFixed(1) +'-day';
+t.rows[1].cells[1].innerHTML = moon.phase_name();
+t.rows[2].cells[1].innerHTML = moon.get('distance').toFixed(2) + ' km';
+t.rows[3].cells[1].innerHTML = moon.get('diameter').toFixed(2) + ' °';
+t.rows[4].cells[1].innerHTML = moon.get_phase('first_quarter');
+t.rows[5].cells[1].innerHTML = moon.get_phase('full_moon');
+t.rows[6].cells[1].innerHTML = moon.get_phase('last_quarter');
+t.rows[7].cells[1].innerHTML = moon.get_phase('next_new_moon');
+t.rows[8].cells[1].innerHTML = moon.get('longitude').toFixed(2);
+t.rows[9].cells[1].innerHTML = moon.get('latitude').toFixed(2);
+t.rows[10].cells[1].innerHTML = moon.get('rightascension');
+t.rows[11].cells[1].innerHTML = moon.get('declination');
+t.rows[12].cells[1].innerHTML = geoLocFormat(geoLat, geoLon) + '<a href="#mpage"><img src=img/map.png width=16 align=right></a>';
+t.rows[13].cells[1].innerHTML = moon.get('azimuth');
+t.rows[14].cells[1].innerHTML = moon.get('altitude');
+</script>
+<svg id="moonimg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="280" height="280">
+  <defs>
+    <mask id="masking" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox">
+      <rect y='0' width='1' height='1' fill='DarkSlateGray' />
+    </mask>
+  </defs>
+  <image xlink:href="img/moon.png" width="280" height="280" mask="url(#masking)"/>
+</svg>
+
+<table class="tcentre" id="table">
+  <tr><td>Age <a href="#age" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>Phase <a href="#phase" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>Distance <a href="#distance" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>Diameter <a href="#diameter" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>First quarter <a href="#timeInGMT" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>Full moon <a href="#timeInGMT" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>Last quarter <a href="#timeInGMT" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>Next new moon <a href="#timeInGMT" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>longitude <a href="#longitude" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>latitude <a href="#latitude" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>RA <a href="#ra" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-btn-inline ui-icon-info ui-btn-icon-notext">Learn more</a></td><td></td></tr>
+  <tr><td>declination</td><td></td></tr>
+  <tr><td>Observer's Location</td><td></td></tr>
+  <tr><td>Azimuth</td><td></td></tr>
+  <tr><td>Altitude</td><td></td></tr>
+</table>
